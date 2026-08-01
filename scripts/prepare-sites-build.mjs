@@ -1,4 +1,4 @@
-import { cp, copyFile, mkdir, rm, stat } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
 
 const projectRoot = process.cwd();
@@ -16,15 +16,24 @@ if (!workerStats?.isFile()) {
 
 await rm(distRoot, { recursive: true, force: true });
 await mkdir(serverOutput, { recursive: true });
-await copyFile(workerSource, resolve(serverOutput, "index.js"));
+const worker = (await readFile(workerSource, "utf8"))
+  .replace(
+    'from "./../output/server/index.js"',
+    'from "./output/server/index.js"',
+  )
+  .replace(
+    'from "./../cloudflare-tmp/manifest.js"',
+    'from "./cloudflare-tmp/manifest.js"',
+  );
+await writeFile(resolve(serverOutput, "index.js"), worker);
 await cp(
   resolve(svelteKitOutput, "output", "server"),
-  resolve(distRoot, "output", "server"),
+  resolve(serverOutput, "output", "server"),
   { recursive: true },
 );
 await cp(
   resolve(svelteKitOutput, "cloudflare-tmp"),
-  resolve(distRoot, "cloudflare-tmp"),
+  resolve(serverOutput, "cloudflare-tmp"),
   { recursive: true },
 );
 await cp(cloudflareOutput, clientOutput, {
