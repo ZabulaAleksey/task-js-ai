@@ -1,5 +1,6 @@
-import { cp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, rm, stat } from "node:fs/promises";
 import { basename, resolve } from "node:path";
+import { build } from "esbuild";
 
 const projectRoot = process.cwd();
 const svelteKitOutput = resolve(projectRoot, ".svelte-kit");
@@ -16,26 +17,17 @@ if (!workerStats?.isFile()) {
 
 await rm(distRoot, { recursive: true, force: true });
 await mkdir(serverOutput, { recursive: true });
-const worker = (await readFile(workerSource, "utf8"))
-  .replace(
-    'from "./../output/server/index.js"',
-    'from "./output/server/index.js"',
-  )
-  .replace(
-    'from "./../cloudflare-tmp/manifest.js"',
-    'from "./cloudflare-tmp/manifest.js"',
-  );
-await writeFile(resolve(serverOutput, "index.js"), worker);
-await cp(
-  resolve(svelteKitOutput, "output", "server"),
-  resolve(serverOutput, "output", "server"),
-  { recursive: true },
-);
-await cp(
-  resolve(svelteKitOutput, "cloudflare-tmp"),
-  resolve(serverOutput, "cloudflare-tmp"),
-  { recursive: true },
-);
+await build({
+  entryPoints: [workerSource],
+  outfile: resolve(serverOutput, "index.js"),
+  bundle: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2022",
+  conditions: ["workerd", "worker", "browser"],
+  external: ["cloudflare:workers"],
+  legalComments: "none",
+});
 await cp(cloudflareOutput, clientOutput, {
   recursive: true,
   filter: (source) => basename(source) !== "_worker.js",
