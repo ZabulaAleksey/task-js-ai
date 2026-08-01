@@ -2,7 +2,8 @@ import { cp, copyFile, mkdir, rm, stat } from "node:fs/promises";
 import { basename, resolve } from "node:path";
 
 const projectRoot = process.cwd();
-const cloudflareOutput = resolve(projectRoot, ".svelte-kit", "cloudflare");
+const svelteKitOutput = resolve(projectRoot, ".svelte-kit");
+const cloudflareOutput = resolve(svelteKitOutput, "cloudflare");
 const workerSource = resolve(cloudflareOutput, "_worker.js");
 const distRoot = resolve(projectRoot, "dist");
 const serverOutput = resolve(distRoot, "server");
@@ -16,6 +17,16 @@ if (!workerStats?.isFile()) {
 await rm(distRoot, { recursive: true, force: true });
 await mkdir(serverOutput, { recursive: true });
 await copyFile(workerSource, resolve(serverOutput, "index.js"));
+await cp(
+  resolve(svelteKitOutput, "output", "server"),
+  resolve(distRoot, "output", "server"),
+  { recursive: true },
+);
+await cp(
+  resolve(svelteKitOutput, "cloudflare-tmp"),
+  resolve(distRoot, "cloudflare-tmp"),
+  { recursive: true },
+);
 await cp(cloudflareOutput, clientOutput, {
   recursive: true,
   filter: (source) => basename(source) !== "_worker.js",
