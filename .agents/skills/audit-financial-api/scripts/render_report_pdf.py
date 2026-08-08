@@ -215,7 +215,7 @@ def parse_table(lines: list[str], start: int) -> tuple[list[list[str]], int]:
     index = start
     while index < len(lines) and lines[index].strip().startswith("|"):
         cells = [cell.strip() for cell in lines[index].strip().strip("|").split("|")]
-        if index != start + 1 or not all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+        if index != start + 1 or not all(re.fullmatch(r":?-+:?", cell) for cell in cells):
             rows.append(cells)
         index += 1
     return rows, index
