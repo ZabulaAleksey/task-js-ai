@@ -1,0 +1,4 @@
+interface:
+  display_name: "Financial API Audit"
+  short_description: "Validates financial APIs and drafts reports"
+  default_prompt: "Use $audit-financial-api to audit current financial API responses and prepare a backend-ready report."
