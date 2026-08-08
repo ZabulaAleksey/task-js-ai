@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-08T14:25:01.345596+00:00",
+  "title": "Аудит текущего финансового API — Northstar Finance Terminal",
+  "profile": "svelte-portfolio",
+  "decision": "REVIEW",
+  "decision_text": "Payload пригоден для demo, но контракт требует согласования до production.",
+  "source": {
+    "source_type": "url",
+    "source": "http://127.0.0.1:5187/api/portfolio",
+    "http_status": 200,
+    "content_type": "application/json",
+    "cache_control": "no-store",
+    "payload_bytes": 591,
+    "elapsed_ms": 4605.5,
+    "document_format": "json",
+    "record_count": 1
+  },
+  "summary": {
+    "total_findings": 4,
+    "by_severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 4,
+      "low": 0,
+      "info": 0
+    },
+    "currency_codes_seen": ["EUR", "GBP", "UAH", "USD"],
+    "objects_checked": 12,
+    "arrays_checked": 3,
+    "decimal_fields_checked": 12
+  },
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "medium",
+      "kind": "contract",
+      "code": "contract.case_normalized_silently",
+      "path": "src/lib/schemas/finance.ts:currencyCodeSchema",
+      "summary": "Клиентская схема молча исправляет регистр валюты",
+      "observed": ".toUpperCase() before validation",
+      "expected": "Backend возвращает uppercase, отклонения наблюдаемы",
+      "risk": "Ошибки регистра сервера скрываются от мониторинга",
+      "recommendation": "Проверять raw payload до transform и исправить backend serialization"
+    },
+    {
+      "id": "F-002",
+      "severity": "medium",
+      "kind": "contract",
+      "code": "contract.currency_membership_unchecked",
+      "path": "src/lib/schemas/finance.ts:currencyCodeSchema",
+      "summary": "Схема проверяет форму кода, но не существование валюты",
+      "observed": "/^[A-Z]{3}$/ after normalization",
+      "expected": "Активный ISO 4217 код или allowlist",
+      "risk": "Код ZZZ пройдёт границу и сломает обработку позже",
+      "recommendation": "Добавить membership-проверку на backend и frontend boundary"
+    },
+    {
+      "id": "F-003",
+      "severity": "medium",
+      "kind": "contract",
+      "code": "contract.normalized_output_schema",
+      "path": "$.financeResult[1]",
+      "summary": "REST отдаёт нормализованные объекты, а upstream-схема принимает строки",
+      "observed": "3 normalized object rows",
+      "expected": "Отдельная response schema либо документированная bidirectional schema",
+      "risk": "Повторная валидация ответа той же схемой завершится ошибкой",
+      "recommendation": "Добавить financeDataResponseSchema для нормализованного ответа"
+    },
+    {
+      "id": "F-004",
+      "severity": "medium",
+      "kind": "contract",
+      "code": "contract.realtime_currency_membership_unchecked",
+      "path": "src/lib/schemas/realtime.ts",
+      "summary": "Realtime-схема принимает любой uppercase код из трёх букв",
+      "observed": "/^[A-Z]{3}$/",
+      "expected": "Активный ISO 4217 код или allowlist",
+      "risk": "Несуществующая валюта попадёт в balances/news/calendar",
+      "recommendation": "Синхронизировать ISO/allowlist-проверку с REST"
+    }
+  ],
+  "limitations": [
+    "Production realtime-provider не проверен: запуск охватывает REST и статические схемы.",
+    "Currency membership использует offline ISO 4217 snapshot от 2026-08-08."
+  ],
+  "operational_error": null,
+  "references": [
+    {
+      "title": "SIX - ISO 4217 Maintenance Agency",
+      "url": "https://www.six-group.com/en/products-services/financial-information/market-reference-data/data-standards.html"
+    },
+    {
+      "title": "ISO 4217 currency codes",
+      "url": "https://www.iso.org/iso-4217-currency-codes.html"
+    }
+  ]
+}

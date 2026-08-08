@@ -13,6 +13,7 @@ SvelteKit 2 + Svelte 5 терминал для точных денежных р�
 - встроенный demo-stream без внешних ключей;
 - адаптивные светлая и тёмная темы;
 - unit- и Playwright E2E-тесты;
+- проектный навык аудита сырых финансовых API-ответов с Markdown/JSON/PDF-отчётом;
 - сборка для Cloudflare Workers и OpenAI Sites.
 
 ## Требования и запуск
@@ -64,6 +65,23 @@ Runtime-контракт событий находится в `src/lib/schemas/r
 
 Текущая CSP разрешает `connect-src 'self' wss:` для настраиваемого внешнего feed. После выбора production provider сузьте директиву до конкретного origin. BFF дополнительно должен проверять Origin, аутентификацию, срок сессии, авторизацию подписок и rate limits.
 
+## Аудит финансового API
+
+Проектный skill `.agents/skills/audit-financial-api` проверяет сырой REST JSON или JSONL-capture realtime-потока до клиентской нормализации. Он выявляет проблемы регистра, неизвестные или выведенные из обращения ISO 4217 коды, коллизии ключей rates, отсутствие курсов, неточные JSON-числа, устаревшие даты, нарушения sequence, bid/ask и OHLC, а также расхождения input/output schema.
+
+Для текущего REST endpoint:
+
+```powershell
+python .agents/skills/audit-financial-api/scripts/audit_financial_api.py `
+  --url http://127.0.0.1:5173/api/portfolio `
+  --profile svelte-portfolio `
+  --project-root . `
+  --output-json reports/financial-api-audit.json `
+  --output-md reports/financial-api-audit.md
+```
+
+Актуальные результаты находятся в `reports/financial-api-audit.md`, `reports/financial-api-audit.json` и `output/pdf/financial-api-audit.pdf`. Заголовки авторизации передавайте только через отдельную env-переменную с `--headers-env`; skill не включает secrets или полный персональный payload в отчёт.
+
 ## Проверки
 
 ```bash
@@ -82,6 +100,9 @@ GitHub Actions выполняет этот набор для `main` и `svelte`;
 ## Структура
 
 ```text
+.agents/skills/audit-financial-api/  повторяемый аудит API и генерация отчётов
+output/pdf/                         PDF-отчёты для передачи backend-команде
+reports/                            Markdown и структурированный JSON аудита
 src/lib/calculations/  точная доменная арифметика
 src/lib/demo/          автономные тестовые данные
 src/lib/realtime/      WebSocket-транспорт и reconnect

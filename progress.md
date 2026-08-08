@@ -231,3 +231,59 @@ npm audit --audit-level=high
 ### Переменные окружения
 
 Новых переменных не добавлено.
+
+## 2026-08-08 — Навык аудита финансового API и текущий backend-отчёт
+
+### Итог
+
+Добавлен проектный и установленный в личный каталог Codex skill `audit-financial-api`. Он проверяет сырой REST JSON и JSONL realtime capture до клиентских transform, выявляет проблемы регистра, membership ISO 4217, decimal-представления, rates, дат, timestamps, sequence, bid/ask, OHLC и направления schema transform. Сформированы Markdown, JSON и визуально проверенный двухстраничный PDF-отчёт для backend-команды.
+
+Фактический ответ `GET /api/portfolio` вернул HTTP 200, `application/json`, `Cache-Control: no-store`, 591 bytes. В текущем payload обнаружены только активные uppercase-коды `EUR`, `GBP`, `UAH`, `USD`; rates полны, положительны, base rate равен 1. Решение отчёта — `REVIEW`: 0 critical, 0 high, 4 medium контрактных замечания.
+
+### Изменённые и созданные файлы
+
+- `.agents/skills/audit-financial-api/SKILL.md` — workflow аудита и требования к backend-отчёту.
+- `.agents/skills/audit-financial-api/agents/openai.yaml` — UI-метаданные навыка.
+- `.agents/skills/audit-financial-api/scripts/audit_financial_api.py` — детерминированный HTTP/JSON/JSONL auditor.
+- `.agents/skills/audit-financial-api/scripts/render_report_pdf.py` — Cyrillic-safe ReportLab renderer.
+- `.agents/skills/audit-financial-api/references/iso4217-current.txt` — snapshot официального SIX List One от 2026-08-08.
+- `.agents/skills/audit-financial-api/references/svelte-finance-contract.md` — профиль REST/realtime контракта проекта.
+- `reports/financial-api-audit.md`, `reports/financial-api-audit.json` — текущий человекочитаемый и структурированный отчёт.
+- `output/pdf/financial-api-audit.pdf` — передаваемая backend-команде PDF-версия.
+- `README.md`, `architecture.md`, `progress.md` — использование, структура и журнал поставки.
+
+### Проверки и тесты
+
+- `quick_validate.py` для проектной и установленной копий skill — `Skill is valid!`.
+- `python -m py_compile` для обоих Python-скриптов — успешно.
+- Фактический аудит локального `/api/portfolio` — `REVIEW`, 4 medium, без high/critical.
+- Синтетический проблемный portfolio payload — `STOP`, exit 2; обнаружены case/whitespace, `ZZZ`, collision rates, missing/non-positive/base rates, stale date и JSON number.
+- Синтетический realtime JSONL — `STOP`, exit 2; обнаружены sequence regression, lowercase symbol, unknown currency, seconds timestamp, crossed quote и нарушения OHLC.
+- PDF отрендерен в две страницы и проверен постранично: кириллица, таблицы, переносы, поля, header/footer и page numbers без дефектов.
+- `npm run format` — выполнено; итоговый `npm run lint` подтвердил Prettier/ESLint.
+- `npm run check` — 0 errors и 0 warnings.
+- `npm run lint` — успешно.
+- `npm test` — Vitest 4/4 files, 11/11 tests; Playwright 3/3 tests.
+- `npm run build` — успешно, Cloudflare adapter и Sites post-processing завершены.
+- `npm audit --audit-level=high` — не пройден: 1 high advisory `GHSA-2v37-7h3g-55p8` в транзитивном dev dependency `nanoid@3.3.16` через `eslint-plugin-svelte -> postcss`; исправление доступно, но dependency/lockfile не изменялись вне scope этой задачи.
+- `git diff --check` и проверка отчёта на secrets выполняются перед финальным commit.
+
+### Технические решения
+
+- Сырой payload проверяется до Zod `.toUpperCase()`, чтобы backend-дефекты регистра не исчезали при нормализации.
+- ISO membership отделён от трёхбуквенной формы; не-ISO активы принимаются только через явный `--allow-code`.
+- Upstream input schema и нормализованный public response рассматриваются как разные направления контракта; для endpoint рекомендована отдельная `financeDataResponseSchema`.
+- Отчёт не сохраняет authorization headers, cookies, query strings, API keys или полный персональный payload.
+- ISO snapshot взят у SIX как официального Maintenance Agency; при устаревании skill требует обновить reference.
+- PDF сформирован через ReportLab и проверен PNG-рендером через PyMuPDF, поскольку Poppler в среде отсутствовал.
+- Навык хранится в репозитории и синхронизирован в `C:\Users\aleks\.codex\skills\audit-financial-api`.
+
+### Известные ограничения и следующий шаг
+
+- Production WebSocket provider не проверен: без отдельного raw JSONL capture отчёт покрывает REST endpoint, demo payload и статические realtime-схемы.
+- Четыре medium замечания требуют backend/frontend согласования: raw casing, ISO membership в finance, отдельная response schema и общая membership-проверка realtime.
+- Отдельным следующим шагом следует обновить транзитивный `nanoid` совместимым patch-релизом и повторить `npm audit --audit-level=high`.
+
+### Переменные окружения
+
+Новых переменных не добавлено. Для authenticated audit существующие секреты можно передавать только через явно выбранную env-переменную и `--headers-env`; её имя и значение в проект не добавлялись.

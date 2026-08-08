@@ -68,6 +68,8 @@ Zod schemas и чистые финансовые calculations
 
 ```text
 Task_Module1/
+├── .agents/
+│   └── skills/audit-financial-api/  # Аудит REST/realtime payload и генерация отчётов
 ├── .github/
 │   ├── workflows/ci.yml             # Проверки push/PR
 │   └── dependabot.yml               # Регулярные dependency updates
@@ -88,6 +90,8 @@ Task_Module1/
 │   ├── app.html                     # HTML shell
 │   └── app.css                      # Глобальные tokens и layout
 ├── tests/                           # Playwright E2E и HTTP security tests
+├── reports/                         # Текущие Markdown/JSON результаты API-аудита
+├── output/pdf/                      # Передаваемый backend-команде PDF-отчёт
 ├── rules/                           # Тематические правила, загружаемые по области задачи
 │   ├── delivery.md                  # Sites, проверки и завершение
 │   ├── finance.md                   # Денежные вычисления и округление
@@ -239,3 +243,15 @@ Playwright запускает приложение на `127.0.0.1:4173` и пр
 - Realtime snapshot не сохраняется между перезагрузками вкладки.
 - При добавлении provider сохраняется граница: внешний payload → schema/adapter → внутренний тип → scoped state/UI.
 - При добавлении D1, R2, authentication или новых Sites bindings нужно одновременно обновить hosting metadata, server types, security tests и этот документ.
+
+## 13. Аудит качества финансового API
+
+Проектный skill `.agents/skills/audit-financial-api` отделяет аудит сырого server payload от нормализованного внутреннего состояния. Он принимает HTTP JSON, локальный JSON или JSONL capture realtime-событий и выпускает:
+
+- структурированный JSON с устойчивыми finding ID, severity, JSON path, риском и backend-рекомендацией;
+- Markdown-отчёт без secrets, query tokens и полного персонального payload;
+- проверяемый PDF через отдельный ReportLab renderer.
+
+Офлайн-валидация валют использует датированный snapshot официального ISO 4217 List One от SIX. Для не-ISO активов требуется явный allowlist. Профиль `svelte-portfolio` дополнительно сравнивает текущий REST output с направлением Zod transform, проверяет полноту rates и `Cache-Control: no-store`, а также отмечает контрактные границы, которые молча нормализуют регистр или проверяют только трёхбуквенную форму кода.
+
+Текущий отчёт хранится в `reports/financial-api-audit.md` и `reports/financial-api-audit.json`; передаваемая версия — в `output/pdf/financial-api-audit.pdf`. Production WebSocket provider не считается проверенным без отдельного raw capture.
