@@ -287,3 +287,35 @@ npm audit --audit-level=high
 ### Переменные окружения
 
 Новых переменных не добавлено. Для authenticated audit существующие секреты можно передавать только через явно выбранную env-переменную и `--headers-env`; её имя и значение в проект не добавлялись.
+
+## 2026-08-08 — Редизайн терминала через build-web-apps
+
+### Цель
+
+Пересобрать основной экран `/terminal/[symbol]` по полному desktop/mobile Image Gen-концепту, сохранив SvelteKit-архитектуру, realtime-данные, финансовые расчёты, локализацию и маршруты.
+
+### Выполнено
+
+- Создана отдельная feature-ветка `feature/build-web-apps-redesign`.
+- App shell переведён на вертикальную desktop-навигацию и компактную sticky mobile-шапку.
+- Добавлен визуальный слой `src/redesign.css` с midnight research desk tokens, светлой темой и responsive breakpoint-ами.
+- Добавлен `FinanceNavIcon.svelte` с единым набором line-иконок для навигации, темы и внешней ссылки.
+- Терминал собран в один открытый workspace: крупная цена, realtime timestamp, четыре quote-поля, адаптивный Canvas-график и balances rail.
+- `CandleChart.svelte` получил динамическую высоту, пунктирную сетку, временную ось и маркер последней цены.
+- Мобильный экран проверен на 390 × 844: заголовок и график видимы, ширина документа равна viewport, навигация прокручивается внутри своей области.
+
+### Проверки
+
+- `npm run format` — успешно.
+- `npm run check` — 0 errors, 0 warnings.
+- `npm run lint` — успешно, ESLint и Prettier.
+- `npm test` — Vitest 4/4 files, 11/11 tests; Playwright 3/3 tests.
+- `npm run build` — успешно, Cloudflare adapter и Sites bundle подготовлены.
+- Интерактивный Playwright smoke test — `/terminal/EURUSD?timeframe=1m` → `5m` → `GBPUSD` → смена dark/light theme; framework overlay отсутствует, console errors/warnings отсутствуют.
+- `npm audit --audit-level=high` — известная 1 high advisory `GHSA-2v37-7h3g-55p8` в транзитивной dev-зависимости `nanoid@3.3.16`; dependency/lockfile не менялись в рамках UI-задачи.
+
+### Ограничения и решения
+
+- Встроенный Browser/IAB дважды не запустился из-за ошибки Windows sandbox helper; визуальная и интерактивная проверка выполнена через настроенный Playwright Chromium проекта.
+- Image Gen-концепты служили design spec и не добавлялись как production assets: интерфейс полностью code-native.
+- Публикация в Sites не выполнялась: `architecture.md` запрещает менять hosted resources без прямого запроса пользователя.

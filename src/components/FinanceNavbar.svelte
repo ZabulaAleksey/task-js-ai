@@ -6,21 +6,34 @@
   import type { TranslationKey } from "$lib/i18n";
   import type { Language, Theme } from "$lib/types";
   import FinanceLogo from "./FinanceLogo.svelte";
+  import FinanceNavIcon from "./FinanceNavIcon.svelte";
+
+  type NavigationIcon =
+    "terminal" | "portfolio" | "news" | "calendar" | "settings";
 
   let { theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void } =
     $props();
   const locale = useLocaleState();
   const market = useMarketState();
   const languages: Record<Language, string> = { en: "EN", ru: "RU", uk: "UA" };
-  const links: { href: string; label: TranslationKey }[] = [
+  const links: {
+    href: string;
+    label: TranslationKey;
+    icon: NavigationIcon;
+  }[] = [
     {
       href: resolve("/terminal/[symbol=symbol]", { symbol: "EURUSD" }),
       label: "terminal",
+      icon: "terminal",
     },
-    { href: resolve("/portfolio"), label: "portfolio" },
-    { href: resolve("/news"), label: "news" },
-    { href: resolve("/calendar"), label: "calendar" },
-    { href: resolve("/settings"), label: "settings" },
+    {
+      href: resolve("/portfolio"),
+      label: "portfolio",
+      icon: "portfolio",
+    },
+    { href: resolve("/news"), label: "news", icon: "news" },
+    { href: resolve("/calendar"), label: "calendar", icon: "calendar" },
+    { href: resolve("/settings"), label: "settings", icon: "settings" },
   ];
 
   const statusLabel = $derived(
@@ -56,46 +69,6 @@
     >
       <FinanceLogo />
     </a>
-
-    <div class="header-actions">
-      <span
-        class:status-demo={market.status === "demo"}
-        class="connection-pill"
-      >
-        <span class="status-dot" aria-hidden="true"></span>
-        {statusLabel}
-      </span>
-      <label class="visually-hidden" for="language"
-        >{locale.t("language")}</label
-      >
-      <select
-        id="language"
-        class="terminal-select compact-select"
-        value={locale.language}
-        aria-label={locale.t("language")}
-        onchange={(event) =>
-          locale.setLanguage(
-            (event.currentTarget as HTMLSelectElement).value as Language,
-          )}
-      >
-        {#each Object.entries(languages) as [value, label] (value)}
-          <option {value}>{label}</option>
-        {/each}
-      </select>
-      <button
-        type="button"
-        class="icon-button"
-        onclick={onToggleTheme}
-        aria-label={theme === "dark"
-          ? locale.t("lightTheme")
-          : locale.t("darkTheme")}
-        title={theme === "dark"
-          ? locale.t("lightTheme")
-          : locale.t("darkTheme")}
-      >
-        <span aria-hidden="true">{theme === "dark" ? "☀" : "◐"}</span>
-      </button>
-    </div>
   </div>
 
   <nav class="terminal-nav" aria-label={locale.t("menu")}>
@@ -105,8 +78,42 @@
         class:active={isActive(link.href)}
         aria-current={isActive(link.href) ? "page" : undefined}
       >
+        <FinanceNavIcon name={link.icon} size={21} />
         <span>{locale.t(link.label)}</span>
       </a>
     {/each}
   </nav>
+
+  <div class="header-actions">
+    <span class:status-demo={market.status === "demo"} class="connection-pill">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span class="connection-label">{statusLabel}</span>
+    </span>
+    <label class="visually-hidden" for="language">{locale.t("language")}</label>
+    <select
+      id="language"
+      class="terminal-select compact-select"
+      value={locale.language}
+      aria-label={locale.t("language")}
+      onchange={(event) =>
+        locale.setLanguage(
+          (event.currentTarget as HTMLSelectElement).value as Language,
+        )}
+    >
+      {#each Object.entries(languages) as [value, label] (value)}
+        <option {value}>{label}</option>
+      {/each}
+    </select>
+    <button
+      type="button"
+      class="icon-button theme-button"
+      onclick={onToggleTheme}
+      aria-label={theme === "dark"
+        ? locale.t("lightTheme")
+        : locale.t("darkTheme")}
+      title={theme === "dark" ? locale.t("lightTheme") : locale.t("darkTheme")}
+    >
+      <FinanceNavIcon name={theme === "dark" ? "sun" : "moon"} size={19} />
+    </button>
+  </div>
 </header>

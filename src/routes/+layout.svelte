@@ -2,6 +2,7 @@
   import { env } from "$env/dynamic/public";
   import { onMount } from "svelte";
   import "../app.css";
+  import "../redesign.css";
   import FinanceNavbar from "../components/FinanceNavbar.svelte";
   import { RealtimeClient } from "$lib/realtime/realtime-client";
   import { provideLocaleState } from "$lib/state/locale-state.svelte";
@@ -19,7 +20,7 @@
     document.documentElement.dataset.bsTheme = nextTheme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", nextTheme === "dark" ? "#07111f" : "#eef4fb");
+      ?.setAttribute("content", nextTheme === "dark" ? "#030d16" : "#f3f6f8");
     localStorage.setItem("theme", nextTheme);
   }
 
@@ -30,13 +31,8 @@
   onMount(() => {
     locale.initialize();
     const savedTheme = localStorage.getItem("theme");
-    const preferredTheme = matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
     applyTheme(
-      savedTheme === "light" || savedTheme === "dark"
-        ? savedTheme
-        : preferredTheme,
+      savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark",
     );
 
     realtimeClient = new RealtimeClient(market, env.PUBLIC_WS_URL);

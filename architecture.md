@@ -255,3 +255,15 @@ Playwright запускает приложение на `127.0.0.1:4173` и пр
 Офлайн-валидация валют использует датированный snapshot официального ISO 4217 List One от SIX. Для не-ISO активов требуется явный allowlist. Профиль `svelte-portfolio` дополнительно сравнивает текущий REST output с направлением Zod transform, проверяет полноту rates и `Cache-Control: no-store`, а также отмечает контрактные границы, которые молча нормализуют регистр или проверяют только трёхбуквенную форму кода.
 
 Текущий отчёт хранится в `reports/financial-api-audit.md` и `reports/financial-api-audit.json`; передаваемая версия — в `output/pdf/financial-api-audit.pdf`. Production WebSocket provider не считается проверенным без отдельного raw capture.
+
+## 14. Визуальный слой терминала
+
+Редизайн `build-web-apps` сохраняет существующие маршруты, Context API, realtime-клиент и финансовые контракты. Визуальная композиция отделена от базового набора общих стилей:
+
+- `app.css` остаётся базовым слоем общих tokens, форм, таблиц и страниц;
+- `redesign.css` задаёт trading-desk shell, палитру, terminal workspace и responsive-переходы;
+- `FinanceNavbar.svelte` владеет вертикальной desktop-навигацией и компактной mobile-шапкой;
+- `FinanceNavIcon.svelte` содержит единое SVG-семейство навигационных и utility-иконок;
+- `CandleChart.svelte` измеряет доступную область через `ResizeObserver`, рисует адаптивные оси, временные метки и линию последней цены.
+
+На ширине до 960 px sidebar превращается в sticky-шапку с горизонтально прокручиваемой навигацией; торговая область и balances rail переходят в один поток. На ширине 390 px документ не создаёт горизонтального overflow. Переключение темы, языка, инструмента и timeframe остаётся code-native и не меняет data flow.

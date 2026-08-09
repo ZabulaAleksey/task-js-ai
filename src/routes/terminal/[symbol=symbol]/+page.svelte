@@ -3,6 +3,7 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import CandleChart from "../../../components/CandleChart.svelte";
+  import FinanceNavIcon from "../../../components/FinanceNavIcon.svelte";
   import { decimal } from "$lib/calculations/money";
   import { useLocaleState } from "$lib/state/locale-state.svelte";
   import { useMarketState } from "$lib/state/market-state.svelte";
@@ -14,6 +15,11 @@
   const market = useMarketState();
   const pairs = ["EURUSD", "GBPUSD", "USDJPY"];
   const timeframes: Timeframe[] = ["1m", "5m", "15m", "1h"];
+  const currencySymbols: Record<string, string> = {
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+  };
 
   const timeframe = $derived.by(() => {
     const requested = page.url.searchParams.get(
@@ -46,10 +52,9 @@
   <meta name="description" content={locale.t("terminalDescription")} />
 </svelte:head>
 
-<section class="page-section">
+<section class="page-section terminal-page">
   <header class="page-heading terminal-heading">
-    <div>
-      <span class="eyebrow">{locale.t("terminal")}</span>
+    <div class="terminal-title-block">
       <h1>{locale.t("terminalTitle", { symbol: params.symbol })}</h1>
       <p>{locale.t("terminalDescription")}</p>
     </div>
@@ -57,7 +62,7 @@
       <label>
         <span class="control-label">Instrument</span>
         <select
-          class="terminal-select"
+          class="terminal-select instrument-select"
           value={params.symbol}
           onchange={changePair}
         >
@@ -85,11 +90,11 @@
     </div>
   </header>
 
-  <div class="market-grid">
+  <div class="market-grid trading-workspace">
     <section class="terminal-panel chart-panel">
-      <div class="panel-heading">
-        <div>
-          <span class="panel-kicker"
+      <div class="market-overview">
+        <div class="price-cluster">
+          <span class="instrument-label"
             >{params.symbol.slice(0, 3)} / {params.symbol.slice(3)}</span
           >
           <div class="live-price-row">
@@ -99,8 +104,9 @@
                 class:negative={Number(quote.changePercent) < 0}
                 class="price-change"
               >
-                {Number(quote.changePercent) >= 0 ? "▲" : "▼"}
-                {Math.abs(Number(quote.changePercent)).toFixed(2)}%
+                {Number(quote.changePercent) >= 0 ? "+" : "−"}{Math.abs(
+                  Number(quote.changePercent),
+                ).toFixed(2)}%
               </span>
             {/if}
           </div>
@@ -121,10 +127,14 @@
 
       <div class="quote-strip" aria-label="Current quote">
         <div>
-          <span>{locale.t("bid")}</span><strong>{quote?.bid ?? "—"}</strong>
+          <span>{locale.t("bid")}</span><strong class="quote-positive"
+            >{quote?.bid ?? "—"}</strong
+          >
         </div>
         <div>
-          <span>{locale.t("ask")}</span><strong>{quote?.ask ?? "—"}</strong>
+          <span>{locale.t("ask")}</span><strong class="quote-negative"
+            >{quote?.ask ?? "—"}</strong
+          >
         </div>
         <div><span>{locale.t("spread")}</span><strong>{spread}</strong></div>
         <div>
@@ -148,17 +158,22 @@
     </section>
 
     <aside class="terminal-panel balances-panel">
-      <div class="panel-heading">
+      <div class="panel-heading balance-heading">
         <div>
-          <span class="panel-kicker">{locale.t("portfolio")}</span>
-          <h2>{locale.t("balances")}</h2>
+          <h2>{locale.t("portfolio")}</h2>
+          <p>{locale.t("balances")}</p>
         </div>
-        <a class="text-link" href={resolve("/portfolio")}>View all ↗</a>
+        <a class="text-link" href={resolve("/portfolio")}>
+          View all <FinanceNavIcon name="arrow-up-right" size={15} />
+        </a>
       </div>
       <div class="balance-list">
         {#each market.balances as balance (balance.currency)}
           <article>
-            <div class="currency-chip">{balance.currency.slice(0, 1)}</div>
+            <div class="currency-chip">
+              {currencySymbols[balance.currency] ??
+                balance.currency.slice(0, 1)}
+            </div>
             <div>
               <strong>{balance.currency}</strong>
               <span>{locale.t("available")}</span>
