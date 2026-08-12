@@ -1,20 +1,20 @@
-# Finance Data Aggregator - local instructions
+# Агрегатор финансовых данных — локальные инструкции
 
-Before working here, read `~/codex-workspace/AGENTS.md`. This file contains only project-specific additions.
+Перед началом работы прочитай `~/codex-workspace/AGENTS.md`. Этот файл содержит только дополнения для проекта.
 
-## Project context
+## Контекст проекта
 
-- React 19, TypeScript, and Vite application that aggregates financial data from external APIs.
-- Validate external payloads with the existing Zod schemas and keep request/calculation logic outside presentation components.
-- Use `decimal.js-light` and the established banking-rounding rules for monetary calculations.
-- Keep English, Russian, and Ukrainian user-facing text synchronized through the existing i18n layer.
-- API keys are ephemeral sensitive input: never log, persist, hard-code, or commit them.
-- Preserve explicit loading and error states around independent data sources.
+- Приложение на React 19, TypeScript и Vite, агрегирующее финансовые данные из внешних API.
+- Проверяй внешние данные существующими схемами Zod и держи логику запросов и вычислений вне компонентов представления.
+- Для денежных расчётов используй `decimal.js-light` и установленные правила банковского округления.
+- Синхронизируй английский, русский и украинский пользовательский текст через существующий слой i18n.
+- Ключи API — временные чувствительные входные данные: никогда не записывай их в журналы, не сохраняй, не встраивай в код и не добавляй в коммиты.
+- Сохраняй явные состояния загрузки и ошибок для независимых источников данных.
 
-## Commands
+## Команды
 
-- Development: `npm run dev`
-- Lint: `npm run lint`
-- Production build: `npm run build`
+- Разработка: `npm run dev`
+- Линтинг: `npm run lint`
+- Production-сборка: `npm run build`
 
-There is no automated test script in the current package manifest. Load only task-relevant AI Dev Team rules or specifications; do not preload all rules, SPEC files, or `LEARNING_LOG.md`.
+В текущем манифесте пакета нет скрипта автоматических тестов. Загружай только относящиеся к задаче правила или спецификации AI Dev Team; не загружай заранее все правила, файлы SPEC или `LEARNING_LOG.md`.

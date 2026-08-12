@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 env/
+.svelte-kit/
+.wrangler/
+test-results/
 
 # Editor directories and files
 .vscode/*
