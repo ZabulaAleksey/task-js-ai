@@ -1,18 +1,23 @@
-# Инструкции репозитория Task_Module1 — ветка `svelte`
+# Northstar Finance Terminal - local instructions
 
-## Область действия
+Before working here, read `~/codex-workspace/AGENTS.md`. These rules apply only to this SvelteKit finance application.
 
-- Эти правила действуют для всего репозитория ветки `svelte`.
-- Перед задачами, меняющими архитектуру, стек, структуру каталогов или связи модулей, полностью прочитай [`architecture.md`](./architecture.md).
+## Context routing
 
-## Обязательные тематические правила
+- Read `architecture.md` for architecture, stack, directory, or module-boundary changes.
+- Read only the applicable file from `rules/`: `delivery.md`, `toolchain.md`, `security.md`, `realtime.md`, or `finance.md`.
+- Do not load the complete rules directory, all SPEC files, reports, or `LEARNING_LOG.md` for a local task.
 
-Перед изменением файлов полностью прочитай каждый документ, соответствующий области задачи:
+## Project invariants
 
-- [`rules/delivery.md`](./rules/delivery.md) — при любой задаче с изменением файлов: поставка, проверки, документация и завершение.
-- [`rules/toolchain.md`](./rules/toolchain.md) — runtime, версии, зависимости, SvelteKit и build toolchain.
-- [`rules/security.md`](./rules/security.md) — секреты, HTTP, server-side границы, CSP, персональные данные и логи.
-- [`rules/realtime.md`](./rules/realtime.md) — WebSocket, входящие market payload, очереди, sequence и протокол.
-- [`rules/finance.md`](./rules/finance.md) — денежные суммы, курсы, Decimal и правила округления.
+- Use `decimal.js-light` for monetary calculations and preserve explicit rounding rules.
+- Validate HTTP, form, and WebSocket boundaries with the existing Zod schemas.
+- Preserve snapshot/delta ordering, monotonic sequence handling, heartbeat, reconnect, and bounded queues.
+- Keep the demo stream usable without external credentials; never commit `.env.local`.
 
-Ссылочные документы являются обязательным продолжением `AGENTS.md`. Обычные файлы из `rules/` Codex автоматически не обнаруживает, поэтому нельзя считать правило применённым, пока соответствующий документ не прочитан.
+## Commands
+
+- Checks: `npm run check` and `npm run lint`
+- Unit tests: `npm run test:unit`
+- End-to-end tests: `npm run test:e2e`
+- Production build: `npm run build`
