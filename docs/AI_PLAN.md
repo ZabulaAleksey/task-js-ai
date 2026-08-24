@@ -1,9 +1,16 @@
 # Текущий план
 
-Статус: governance migration подготовлена в отдельном worktree.
+## Governance migration
 
-1. Интегрировать этот project overlay только после пользовательского разрешения и осознанного разрешения Svelte/React merge в основном checkout.
-2. После интеграции прогнать `check`, lint, unit, E2E и build на фактическом выбранном продуктовом варианте.
-3. Следующей продуктовой задачей отдельно спроектировать backend/BFF contract; не помещать provider secrets в frontend.
+Статус: завершено.
 
-Definition of Done governance-этапа: единый `STAGES.md`, согласованные локальные инструкции, честный статус merge blocker, overlay validator PASS, отсутствие изменения продуктового кода.
+1. Интегрировать project overlay с единым глобальным контрактом `~/.codex/AGENTS.md` — выполнено.
+2. Сохранить канонический стек SvelteKit 2/Svelte 5 и не смешивать его с unrelated React-историей — выполнено.
+3. Проверить overlay, type-check, unit, E2E и production build — выполнено; результаты находятся в `docs/AI_STATUS.md`.
+4. Не форматировать продуктовый код в рамках governance-задачи; Prettier drift вынести в отдельную задачу — принято.
+
+## Следующая продуктовая задача
+
+Отдельно спроектировать backend/BFF contract для provider feeds. Provider secrets не должны попадать во frontend bundle, URL, логи или fixtures.
+
+Definition of Done governance-этапа: единый `prompts/STAGES.md`, согласованный project overlay, ссылка на `~/.codex/AGENTS.md`, validator PASS, продуктовый код не изменён.
