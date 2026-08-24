@@ -1,62 +1,74 @@
-﻿# Finance Data Aggregator
+# Northstar Finance Terminal
 
-Веб-приложение для получения и объединения финансовых данных из нескольких источников. ользователь вводит API-ключ, приложение запрашивает данные, считает итоговую сумму и отображает курсы валют.
+SvelteKit 2 + Svelte 5 терминал для точных денежных расчётов, потоковых валютных котировок, свечей, новостей и экономического календаря.
 
-### Что умеет приложение
+## Что уже есть
 
-- принимает API-ключ и отправляет запрос к финансовым источникам;
-- объединяет данные из двух финансовых источников и валютного API;
-- проверяет доступность курсов валют и сообщает об ошибках при отсутствии нужного курса;
-- рассчитывает общую сумму с банковским округлением;
-- показывает суммы по валютам и актуальные курсы обмена;
-- поддерживает тёмную и светлую тему, а также языки English, усский и країнська;
-- отображает понятные сообщения об ошибках без падения всего интерфейса.
+- файловая маршрутизация: `/terminal/[symbol]`, `/portfolio`, `/news`, `/calendar`, `/settings`;
+- серверная загрузка портфеля и form action без передачи секретов в браузер;
+- точные расчёты через `decimal.js-light`, без арифметики денежных сумм на `Number`;
+- Zod-схемы на границах HTTP, форм и WebSocket;
+- изолированные locale/market state на Svelte 5 runes;
+- WebSocket-клиент с WSS, snapshot + delta, sequence-дедупликацией, heartbeat, stale-state, backoff и буферизацией обновлений через `requestAnimationFrame`;
+- встроенный demo-stream, который работает без внешних ключей;
+- светлая и тёмная темы, адаптивная вёрстка, клавиатурный focus, skip-link и live regions;
+- route-level metadata, manifest и favicon;
+- unit- и Playwright E2E-тесты.
 
-### Технологии
+## Запуск
 
-- React 19
-- TypeScript
-- Vite
-- Bootstrap 5 и Bootstrap Icons
-- Zod для валидации данных
-- decimal.js-light для точных финансовых расчётов
-- react-error-boundary для обработки ошибок интерфейса
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-### Требования
+Откройте адрес, который выведет Vite. Без переменных окружения приложение автоматически запускает безопасный локальный demo-stream.
 
-- Node.js 20+
-- npm
+## Проверки
 
-### Установка и запуск
+```bash
+pnpm check
+pnpm lint
+pnpm test:unit
+npx playwright install chromium
+pnpm test:e2e
+pnpm build
+```
 
-1. Установите зависимости:
-   ```bash
-   npm install
-   ```
-2. Создайте файл `.env` в корне проекта и добавьте переменную с ключом валютного API, полученного на сайте currencyfreaks.com:
-   ```bash
-   VITE_CURRENCY_API_KEY=your_currency_api_key
-   ```
-3. Запустите локальный сервер разработки:
-   ```bash
-   npm run dev
-   ```
+## Подключение WebSocket
 
-### Доступные команды
+Создайте `.env` на основе `.env.example`:
 
-- `npm run dev` — запуск dev-сервера
-- `npm run build` — сборка проекта
-- `npm run lint` — проверка ESLint
-- `npm run preview` — предварительный просмотр собранного приложения
+```dotenv
+PUBLIC_WS_URL=wss://stream.example.com/v1/market
+```
 
-## Структура проекта
+В production разрешён только `wss://`. `ws://` допускается исключительно для `localhost` и `127.0.0.1`. В браузер нельзя передавать API-ключи поставщиков: внешний feed должен подключаться через ваш доверенный backend/BFF.
 
-- `src/components` — UI-компоненты интерфейса
-- `src/hooks` — кастомные hooks для работы с данными и темой
-- `src/services` — логика запросов и расчётов
-- `src/schemas` — схемы валидации данных
-- `src/i18n` — интернационализация
+После соединения клиент отправляет подписку:
 
-## Примечание
+```json
+{
+  "type": "subscribe",
+  "symbols": ["EURUSD", "GBPUSD", "USDJPY"],
+  "timeframes": ["1m", "5m", "15m", "1h"],
+  "channels": ["quotes", "candles", "balances", "news", "calendar"],
+  "afterSequence": 0
+}
+```
 
-API-ключ используется только для текущего запроса и не сохраняется в приложении.
+Сервер должен присылать версионированные события `snapshot`, `quote.update`, `candle.update`, `balance.update`, `news.create`, `calendar.update` и `heartbeat`. Точная runtime-схема находится в `src/lib/schemas/realtime.ts`.
+
+## Структура
+
+```text
+src/lib/calculations/  точная доменная арифметика
+src/lib/demo/          автономные тестовые данные
+src/lib/realtime/      транспорт и стратегия переподключения
+src/lib/schemas/       runtime-валидация внешних данных
+src/lib/state/         scoped state приложения
+src/routes/            страницы, server load/actions и API
+tests/                 сквозные пользовательские сценарии
+```
+
+Production-сборка использует официальный `@sveltejs/adapter-cloudflare` и дополнительно готовит Workers-совместимые каталоги `dist/server` и `dist/client`. Заголовки CSP и monitoring настраиваются на стороне выбранного хостинга.

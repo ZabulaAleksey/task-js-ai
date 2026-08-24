@@ -1,20 +1,31 @@
-# Агрегатор финансовых данных — локальные инструкции
+# Northstar Finance Terminal — локальные инструкции
 
-Перед началом работы прочитай `~/codex-workspace/AGENTS.md`. Этот файл содержит только дополнения для проекта.
+Перед работой прочитай `~/.codex/AGENTS.md` и применяй этот файл только как project-specific delta. Для этапной работы используй `prompts/STAGES.md`, `docs/AI_PLAN.md` и `docs/AI_STATUS.md`.
 
-## Контекст проекта
+## Контекст и инварианты
 
-- Приложение на React 19, TypeScript и Vite, агрегирующее финансовые данные из внешних API.
-- Проверяй внешние данные существующими схемами Zod и держи логику запросов и вычислений вне компонентов представления.
-- Для денежных расчётов используй `decimal.js-light` и установленные правила банковского округления.
-- Синхронизируй английский, русский и украинский пользовательский текст через существующий слой i18n.
-- Ключи API — временные чувствительные входные данные: никогда не записывай их в журналы, не сохраняй, не встраивай в код и не добавляй в коммиты.
-- Сохраняй явные состояния загрузки и ошибок для независимых источников данных.
+- Канонический стек этой ветки: SvelteKit 2, Svelte 5, TypeScript, Vite.
+- Денежные вычисления выполняются через `decimal.js-light`; арифметика денег на `Number` запрещена.
+- Все внешние HTTP/WebSocket payload проходят существующие Zod-схемы до попадания в состояние приложения.
+- API keys и provider credentials не передаются в browser bundle, URL, логи или fixtures. Внешние feeds подключаются через доверенный backend/BFF.
+- Production WebSocket использует `wss://`; `ws://` допустим только для loopback development.
+- Demo stream является явным локальным режимом, а не скрытым fallback для ошибки production feed.
+- Locale/market state должен оставаться scoped; не вводи неограниченное глобальное mutable state.
 
-## Команды
+## Проверки
 
-- Разработка: `npm run dev`
-- Линтинг: `npm run lint`
-- Production-сборка: `npm run build`
+- `pnpm check`
+- `pnpm lint`
+- `pnpm test:unit`
+- `pnpm test:e2e` после установки Chromium для Playwright
+- `pnpm build`
 
-В текущем манифесте пакета нет скрипта автоматических тестов. Загружай только относящиеся к задаче правила или спецификации AI Dev Team; не загружай заранее все правила, файлы SPEC или `LEARNING_LOG.md`.
+Канонический package manager — `pnpm@11.23.0` с `pnpm-lock.yaml`; restore выполняется через `pnpm install --frozen-lockfile`. Общий pnpm store разрешён, project-local dependency projection считается disposable. При блокировке `pnpm.ps1` используй `pnpm.cmd`.
+
+Принятые tests/fixtures/goldens являются контрактом и не меняются в рамках документационной или migration-задачи. Недоступный browser/backend gate фиксируется как `UNVERIFIED` с причиной.
+
+## Локальные ограничения
+
+- Сохраняй sequence deduplication, heartbeat, stale state, bounded backoff и `requestAnimationFrame` batching realtime-клиента.
+- Не заявляй production market-data readiness без provider/BFF evidence.
+- Не выполняй push/merge и не разрешай конфликт основного checkout без явного разрешения пользователя.
