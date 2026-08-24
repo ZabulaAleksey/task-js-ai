@@ -1,5 +1,7 @@
 # Текущий план
 
+Инфраструктурный срез 2026-08-24: миграция npm → pnpm, clean restore, shared store compatibility и повтор полного quality pipeline — `DONE`. Принятые product tests и форматирование файлов не изменялись.
+
 ## Governance migration
 
 Статус: завершено.

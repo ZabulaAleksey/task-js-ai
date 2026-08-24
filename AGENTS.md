@@ -14,11 +14,13 @@
 
 ## Проверки
 
-- `npm run check`
-- `npm run lint`
-- `npm run test:unit`
-- `npm run test:e2e` после установки Chromium для Playwright
-- `npm run build`
+- `pnpm check`
+- `pnpm lint`
+- `pnpm test:unit`
+- `pnpm test:e2e` после установки Chromium для Playwright
+- `pnpm build`
+
+Канонический package manager — `pnpm@11.23.0` с `pnpm-lock.yaml`; restore выполняется через `pnpm install --frozen-lockfile`. Общий pnpm store разрешён, project-local dependency projection считается disposable. При блокировке `pnpm.ps1` используй `pnpm.cmd`.
 
 Принятые tests/fixtures/goldens являются контрактом и не меняются в рамках документационной или migration-задачи. Недоступный browser/backend gate фиксируется как `UNVERIFIED` с причиной.
 

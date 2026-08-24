@@ -18,8 +18,8 @@ SvelteKit 2 + Svelte 5 терминал для точных денежных р�
 ## Запуск
 
 ```bash
-npm install
-npm run dev
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Откройте адрес, который выведет Vite. Без переменных окружения приложение автоматически запускает безопасный локальный demo-stream.
@@ -27,12 +27,12 @@ npm run dev
 ## Проверки
 
 ```bash
-npm run check
-npm run lint
-npm run test:unit
+pnpm check
+pnpm lint
+pnpm test:unit
 npx playwright install chromium
-npm run test:e2e
-npm run build
+pnpm test:e2e
+pnpm build
 ```
 
 ## Подключение WebSocket

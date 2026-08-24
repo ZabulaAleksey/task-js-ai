@@ -8,11 +8,11 @@
 
 Цель: после отдельного пользовательского решения интегрировать migration-ветку с основным checkout без потери обеих сторон незавершённого merge.
 
-Scope: выбрать канонический продуктовый стек; разрешить package/README/source conflicts; сохранить backup refs; проверить полный diff. Non-goals: новый UI или provider integration. DoD: нет conflict markers, выбранный stack документирован ADR, `npm ci` и его gates воспроизводимы. Текущий статус: `BLOCKED_BY_USER_MERGE_DECISION`.
+Scope: выбрать канонический продуктовый стек; разрешить package/README/source conflicts; сохранить backup refs; проверить полный diff. Non-goals: новый UI или provider integration. DoD: нет conflict markers, выбранный stack документирован ADR, `pnpm install --frozen-lockfile` и его gates воспроизводимы. Текущий статус: `BLOCKED_BY_USER_MERGE_DECISION`.
 
 ## Этап 2 — Подтвердить существующий Svelte quality gate
 
-Цель: доказать, что принятый Svelte baseline проходит `npm run check`, `npm run lint`, `npm run test:unit`, `npm run test:e2e`, `npm run build`.
+Цель: доказать, что принятый Svelte baseline проходит `pnpm check`, `pnpm lint`, `pnpm test:unit`, `pnpm test:e2e`, `pnpm build`.
 
 Scope: только прогон и минимальное исправление выявленных regression по отдельному запросу. DoD: команды и версии окружения записаны в `AI_STATUS`; browser/backend ограничения отделены от PASS. Тестовые контракты не переписываются.
 
