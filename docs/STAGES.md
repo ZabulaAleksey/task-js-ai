@@ -9,7 +9,7 @@
 - Plan: отдельным ограниченным изменением устранить форматирование, не переписывая accepted tests/fixtures; затем повторить весь quality pipeline.
 - Evidence: 2026-09-15 `pnpm install --frozen-lockfile` PASS; `pnpm check` 0/0 PASS; unit 7/7 PASS; Chromium E2E 2/2 PASS; build PASS; ESLint PASS; Prettier 63 files FAIL. Исторические факты и SHA старых документов сохранены в `docs/notes/legacy-ai-state-evidence.md`; подробные будущие контракты — `docs/notes/legacy-stage-contracts.md`.
 - NEXT: NSTAR-QUALITY-FORMATTING
-- USER action `NSTAR-MERGE-DOCS`: PENDING; после публикации документационной ветки явно разрешить её merge в `main`; evidence — GitHub default-branch read-back только `docs/STAGES.md`; unlock — удаление полностью слитой ветки.
+- USER action `NSTAR-MERGE-DOCS`: DONE; пользователь разрешил merge ветки `9159167`, fast-forward опубликован в GitHub `main`, read-back подтвердил `docs/STAGES.md` и отсутствие `prompts/STAGES.md`, `docs/AI_PLAN.md`, `docs/AI_STATUS.md`; полностью слитую ветку можно удалить.
 
 ## Будущие этапы
 
