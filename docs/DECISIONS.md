@@ -19,3 +19,7 @@
 ## ADR-004 — Demo stream является отдельным режимом
 
 Статус: принято. Он обеспечивает локальную воспроизводимость, но не маскирует сбой настроенного production feed.
+
+## ADR-005 — Канонический execution state
+
+Статус: принято 2026-09-15. Текущий plan, status, evidence и NEXT принадлежат только `docs/STAGES.md`. Исторический stage catalog и старые AI facts сохранены в `docs/notes/`, не как второй live owner.

@@ -4,4 +4,4 @@
 
 Ключевые границы: точные расчёты находятся в `src/lib/calculations`, внешние данные валидируются в `src/lib/schemas`, realtime transport изолирован в `src/lib/realtime`, scoped state — в `src/lib/state`, страницы и server load/actions — в `src/routes`. Browser не должен получать provider secrets.
 
-Основной checkout находится в незавершённом пользовательском merge между Svelte и React вариантами. Governance-изменение изолировано в Svelte migration-worktree и не разрешает этот конфликт.
+Опубликованный GitHub `main` содержит SvelteKit baseline и merge dependency-manager migration. Состояние иных пользовательских checkout не проверено; эта документационная миграция не разрешает их возможные конфликты.

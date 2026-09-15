@@ -1,6 +1,6 @@
 # Northstar Finance Terminal — локальные инструкции
 
-Перед работой прочитай `~/.codex/AGENTS.md` и применяй этот файл только как project-specific delta. Для этапной работы используй `prompts/STAGES.md`, `docs/AI_PLAN.md` и `docs/AI_STATUS.md`.
+Перед работой прочитай `~/.codex/AGENTS.md` и применяй этот файл только как project-specific delta. Для этапной работы используй канонический `docs/STAGES.md`; исторические факты старого AI state сохранены в `docs/notes/`.
 
 ## Контекст и инварианты
 
